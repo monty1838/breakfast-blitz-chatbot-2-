@@ -1,570 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Breakfast Blitz – Banana Blitz Support</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --forest: #1a3a2a;
-    --forest-mid: #234d38;
-    --forest-light: #2d6349;
-    --gold: #c9a84c;
-    --gold-light: #e8c96a;
-    --gold-pale: #f5e9c0;
-    --cream: #fdf8ee;
-    --text-dark: #1a2620;
-    --text-mid: #3d5248;
-    --bubble-user: #1a3a2a;
-    --bubble-bot: #ffffff;
-    --shadow: 0 8px 32px rgba(26,58,42,0.18);
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* Decorative background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(201,168,76,0.12) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 60% at 85% 80%, rgba(26,58,42,0.10) 0%, transparent 70%),
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 60px,
-        rgba(201,168,76,0.03) 60px,
-        rgba(201,168,76,0.03) 61px
-      );
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .page-wrap {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 480px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-
-  /* Brand header */
-  .brand-header {
-    text-align: center;
-    animation: fadeDown 0.6s ease both;
-  }
-  .brand-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--forest);
-    color: var(--gold);
-    padding: 10px 22px;
-    border-radius: 40px;
-    box-shadow: 0 4px 18px rgba(26,58,42,0.25);
-  }
-  .brand-logo svg { width: 26px; height: 26px; flex-shrink: 0; }
-  .brand-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.03em;
-    color: var(--gold-light);
-  }
-  .brand-tagline {
-    margin-top: 8px;
-    font-size: 0.78rem;
-    color: var(--text-mid);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-
-  /* Chat window */
-  .chat-window {
-    width: 100%;
-    background: #fff;
-    border-radius: 24px;
-    box-shadow: var(--shadow), 0 0 0 1px rgba(201,168,76,0.18);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: fadeUp 0.55s 0.1s ease both;
-    max-height: 78vh;
-  }
-
-  /* Chat header */
-  .chat-header {
-    background: var(--forest);
-    padding: 18px 22px 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
-  }
-  .avatar {
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    flex-shrink: 0;
-  }
-  .header-text h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    color: #fff;
-    line-height: 1.2;
-  }
-  .status-row {
-    display: flex; align-items: center; gap: 6px;
-    margin-top: 3px;
-  }
-  .status-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #4ade80;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  .status-label {
-    font-size: 0.73rem;
-    color: rgba(255,255,255,0.65);
-    letter-spacing: 0.04em;
-  }
-  .product-badge {
-    margin-left: auto;
-    background: rgba(201,168,76,0.18);
-    border: 1px solid rgba(201,168,76,0.4);
-    border-radius: 20px;
-    padding: 5px 12px;
-    text-align: center;
-  }
-  .product-badge span {
-    display: block;
-    font-size: 0.65rem;
-    color: var(--gold-light);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 1.4;
-  }
-
-  /* Messages */
-  .messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    scroll-behavior: smooth;
-  }
-  .messages::-webkit-scrollbar { width: 4px; }
-  .messages::-webkit-scrollbar-track { background: transparent; }
-  .messages::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 4px; }
-
-  .msg {
-    display: flex;
-    flex-direction: column;
-    max-width: 84%;
-    animation: popIn 0.3s ease both;
-  }
-  .msg.bot { align-self: flex-start; }
-  .msg.user { align-self: flex-end; align-items: flex-end; }
-
-  .msg-bubble {
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.88rem;
-    line-height: 1.6;
-    position: relative;
-  }
-  .msg.bot .msg-bubble {
-    background: var(--bubble-bot);
-    color: var(--text-dark);
-    border-bottom-left-radius: 5px;
-    box-shadow: 0 2px 12px rgba(26,58,42,0.10);
-    border: 1px solid rgba(201,168,76,0.15);
-  }
-  .msg.user .msg-bubble {
-    background: var(--forest);
-    color: #fff;
-    border-bottom-right-radius: 5px;
-    box-shadow: 0 2px 12px rgba(26,58,42,0.20);
-  }
-
-  .msg-time {
-    font-size: 0.66rem;
-    color: #a0b0a8;
-    margin-top: 4px;
-    padding: 0 4px;
-  }
-
-  /* Typing indicator */
-  .typing-indicator .msg-bubble {
-    padding: 14px 18px;
-  }
-  .dots { display: flex; gap: 5px; align-items: center; height: 14px; }
-  .dots span {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--gold);
-    animation: bounce 1.2s ease-in-out infinite;
-  }
-  .dots span:nth-child(2) { animation-delay: 0.2s; }
-  .dots span:nth-child(3) { animation-delay: 0.4s; }
-
-  /* Quick replies */
-  .quick-replies {
-    padding: 4px 18px 14px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    flex-shrink: 0;
-    border-top: 1px solid rgba(201,168,76,0.1);
-    padding-top: 14px;
-  }
-  .quick-btn {
-    background: transparent;
-    border: 1.5px solid var(--gold);
-    color: var(--forest);
-    padding: 7px 13px;
-    border-radius: 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .quick-btn:hover {
-    background: var(--forest);
-    color: var(--gold-light);
-    border-color: var(--forest);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26,58,42,0.2);
-  }
-  .quick-btn:active { transform: translateY(0); }
-
-  /* Input area */
-  .input-area {
-    padding: 14px 16px 16px;
-    background: var(--cream);
-    border-top: 1px solid rgba(201,168,76,0.15);
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    flex-shrink: 0;
-  }
-  .input-wrap {
-    flex: 1;
-    background: #fff;
-    border: 1.5px solid rgba(201,168,76,0.3);
-    border-radius: 22px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    transition: border-color 0.2s;
-  }
-  .input-wrap:focus-within { border-color: var(--gold); }
-  #user-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    color: var(--text-dark);
-    padding: 12px 0;
-    outline: none;
-    resize: none;
-    max-height: 100px;
-    line-height: 1.5;
-  }
-  #user-input::placeholder { color: #aab8b2; }
-
-  .send-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--forest-mid) 0%, var(--forest) 100%);
-    border: none;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s;
-    box-shadow: 0 3px 10px rgba(26,58,42,0.3);
-  }
-  .send-btn:hover { transform: scale(1.08); box-shadow: 0 5px 16px rgba(26,58,42,0.35); }
-  .send-btn:active { transform: scale(0.96); }
-  .send-btn svg { width: 18px; height: 18px; color: var(--gold-light); }
-  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* Welcome banner */
-  .welcome-card {
-    background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 100%);
-    border-radius: 16px;
-    padding: 18px 20px;
-    color: #fff;
-    margin-bottom: 4px;
-    border: 1px solid rgba(201,168,76,0.25);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-  }
-  .welcome-card .product-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    color: var(--gold-light);
-    margin-bottom: 4px;
-  }
-  .welcome-card p {
-    font-size: 0.82rem;
-    line-height: 1.6;
-    color: rgba(255,255,255,0.78);
-  }
-  .welcome-card .highlights {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
-  }
-  .highlight-pill {
-    background: rgba(201,168,76,0.2);
-    border: 1px solid rgba(201,168,76,0.35);
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 0.72rem;
-    color: var(--gold-light);
-    font-weight: 500;
-  }
-
-  /* Animations */
-  @keyframes fadeDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes popIn { from { opacity:0; transform:scale(0.94) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
-  @keyframes bounce { 0%,80%,100% { transform:translateY(0); } 40% { transform:translateY(-6px); } }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
-
-  @media (max-width: 500px) {
-    .page-wrap { padding: 12px; gap: 12px; }
-    .chat-window { max-height: 85vh; }
-  }
+.bb-wrap{font-family:var(--font-sans);max-width:480px;margin:0 auto}
+.bb-header{background:#1a3a2a;padding:14px 18px;border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;display:flex;align-items:center;gap:12px}
+.bb-avatar{width:40px;height:40px;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.bb-title{color:#fff;font-size:15px;font-weight:500;margin:0}
+.bb-status{color:#9fe1cb;font-size:12px;margin:0}
+.bb-messages{height:320px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--color-background-secondary)}
+.bb-msg{max-width:82%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.bb-msg.bot{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);align-self:flex-start;border-radius:4px 12px 12px 12px}
+.bb-msg.user{background:#1a3a2a;color:#fff;align-self:flex-end;border-radius:12px 4px 12px 12px}
+.bb-quick{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.bb-qbtn{font-size:12px;padding:5px 10px;border-radius:20px;border:1px solid #1a3a2a;color:#1a3a2a;background:transparent;cursor:pointer}
+.bb-qbtn:hover{background:#1a3a2a;color:#fff}
+.bb-input-area{display:flex;gap:8px;padding:10px 14px;background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);border-radius:0 0 var(--border-radius-lg) var(--border-radius-lg)}
+.bb-input-area input{flex:1;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:14px}
+.bb-input-area button{background:#1a3a2a;color:#fff;border:none;padding:8px 14px;border-radius:var(--border-radius-md);cursor:pointer;font-size:13px}
+.bb-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bb-pill{background:#e1f5ee;color:#085041;font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid #9fe1cb}
 </style>
-</head>
-<body>
-<div class="page-wrap">
 
-  <div class="brand-header">
-    <div class="brand-logo">
-      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="13" cy="13" r="12" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.6)" stroke-width="1"/>
-        <text x="13" y="18" text-anchor="middle" font-size="14" fill="#e8c96a">🌿</text>
-      </svg>
-      <span class="brand-name">Breakfast Blitz</span>
+<h2 class="sr-only">Breakfast Blitz customer support chatbot for Banana Blitz Sport protein shake</h2>
+
+<div class="bb-wrap" style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden">
+  <div class="bb-header">
+    <div class="bb-avatar">🍌</div>
+    <div>
+      <p class="bb-title">Blitz Assistant</p>
+      <p class="bb-status">● Online now</p>
     </div>
-    <div class="brand-tagline">Banana Blitz Sport · Support Chat</div>
-  </div>
-
-  <div class="chat-window">
-    <div class="chat-header">
-      <div class="avatar">🍌</div>
-      <div class="header-text">
-        <h2>Blitz Assistant</h2>
-        <div class="status-row">
-          <div class="status-dot"></div>
-          <span class="status-label">Online now</span>
-        </div>
-      </div>
-      <div class="product-badge">
-        <span>Banana Blitz</span>
-        <span>Sport RTD</span>
-      </div>
-    </div>
-
-    <div class="messages" id="messages">
-      <div class="msg bot">
-        <div class="msg-bubble">
-          <div class="welcome-card">
-            <div class="product-name">Banana Blitz Sport 🍌</div>
-            <p>Hey there! I'm your Banana Blitz Sport assistant. Ask me anything about New Zealand's tastiest plant-based protein shake.</p>
-            <div class="highlights">
-              <span class="highlight-pill">30g Protein</span>
-              <span class="highlight-pill">400ml RTD</span>
-              <span class="highlight-pill">HPP Cold Pressed</span>
-              <span class="highlight-pill">$6.50 NZD</span>
-              <span class="highlight-pill">Plant Based</span>
-            </div>
-          </div>
-        </div>
-        <span class="msg-time">Just now</span>
-      </div>
-    </div>
-
-    <div class="quick-replies" id="quick-replies">
-      <button class="quick-btn" onclick="sendQuick('Where can I buy it?')">🛒 Where can I buy it?</button>
-      <button class="quick-btn" onclick="sendQuick('How much protein does it have?')">💪 How much protein?</button>
-      <button class="quick-btn" onclick="sendQuick('Is it good for kids?')">👧 Is it good for kids?</button>
-      <button class="quick-btn" onclick="sendQuick('How do I store it?')">❄️ How do I store it?</button>
-    </div>
-
-    <div class="input-area">
-      <div class="input-wrap">
-        <textarea id="user-input" placeholder="Ask about Banana Blitz Sport…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      </div>
-      <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
+    <div style="margin-left:auto;background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.4);border-radius:20px;padding:4px 10px;text-align:center">
+      <span style="font-size:11px;color:#e8c96a;display:block">BANANA BLITZ</span>
+      <span style="font-size:11px;color:#e8c96a;display:block">SPORT RTD</span>
     </div>
   </div>
 
+  <div class="bb-messages" id="bbmsg">
+    <div class="bb-msg bot">
+      Hey! Welcome to Breakfast Blitz Support. Ask me anything about Banana Blitz Sport!
+      <div class="bb-pills">
+        <span class="bb-pill">30g Protein</span>
+        <span class="bb-pill">400ml RTD</span>
+        <span class="bb-pill">HPP Cold Pressed</span>
+        <span class="bb-pill">$6.50 NZD</span>
+        <span class="bb-pill">Plant Based</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bb-quick">
+    <button class="bb-qbtn" onclick="ask('Where can I buy it?')">🛒 Where to buy?</button>
+    <button class="bb-qbtn" onclick="ask('How much protein does it have?')">💪 Protein content?</button>
+    <button class="bb-qbtn" onclick="ask('Is it good for kids?')">👧 Good for kids?</button>
+    <button class="bb-qbtn" onclick="ask('How do I store it?')">❄️ Storage tips?</button>
+    <button class="bb-qbtn" onclick="ask('How much does it cost?')">💰 Price?</button>
+    <button class="bb-qbtn" onclick="ask('Is it plant based?')">🌱 Plant based?</button>
+  </div>
+
+  <div class="bb-input-area">
+    <input type="text" id="bbinput" placeholder="Ask about Banana Blitz Sport..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button onclick="sendMsg()">Send</button>
+  </div>
 </div>
 
 <script>
-const SYSTEM_PROMPT = `You are a friendly and knowledgeable customer support assistant for Breakfast Blitz, a New Zealand food and drink brand. You specialise in answering questions about Banana Blitz Sport — a ready-to-drink protein shake.
+const answers=[
+  {k:['where','buy','find','stock','store','supermarket','woolworths','new world','pak'],a:"You can find Banana Blitz Sport in the chilled aisle at Woolworths, New World, and Pak'nSave stores across New Zealand! Look for us in the refrigerated drinks section."},
+  {k:['protein','how much protein','30g','grams'],a:"Each 400ml bottle of Banana Blitz Sport contains 30g of plant-based protein per serve — that's from our pea-rice protein blend, giving you a complete amino acid profile without the dairy."},
+  {k:['kids','children','child','family','baby'],a:"Banana Blitz Sport is formulated for active adults — 30g of protein is quite a large dose for young children. We'd recommend consulting your doctor or dietitian before giving it to kids under 12. Older teens who are very active may benefit!"},
+  {k:['store','storage','keep','refrigerat','fridge','cold'],a:"Keep Banana Blitz Sport refrigerated at all times — below 4°C is ideal. Because we use HPP cold processing instead of heat, the product must stay chilled to maintain freshness. Once opened, consume within 24 hours."},
+  {k:['cost','price','how much','dollar','nzd','expensive'],a:"Banana Blitz Sport retails at $6.50 NZD per 400ml bottle. Given the 30g plant-based protein, electrolytes, B vitamins, and HPP processing, we think it's great value compared to other premium RTD protein shakes!"},
+  {k:['plant','vegan','dairy','dairy-free','dairy free','lactose'],a:"Yes! Banana Blitz Sport is 100% plant-based. We use a pea-rice protein blend with no dairy, no whey, and no animal-derived ingredients. It's suitable for vegans and those avoiding dairy."},
+  {k:['ingredient','what','made','contain','inside'],a:"Banana Blitz Sport contains: water, pea-rice protein blend (30g), banana puree, natural caramelised banana flavour, vanilla flavour, electrolytes (sodium, potassium, magnesium), B vitamins (B2, B6, B12, niacin), xanthan gum for texture, and natural sweeteners. No artificial colours or flavours!"},
+  {k:['hpp','process','cold press','fresh','shelf'],a:"HPP stands for High Pressure Processing — we use cold water pressure instead of heat to make the product safe. This preserves more nutrients, natural flavour, and freshness compared to traditional heat-treated protein drinks. That's why we have a shelf life of 60-90 days refrigerated!"},
+  {k:['flavour','flavor','taste','banana','vanilla','caramel'],a:"Banana Blitz Sport features a rich Caramelised Banana and Vanilla Cream flavour profile. Think warm, naturally sweet banana with a smooth, creamy vanilla finish — indulgent but totally purposeful. No artificial banana flavouring here!"},
+  {k:['electrolyte','sodium','potassium','magnesium','hydrat'],a:"Each bottle contains a performance electrolyte blend — sodium, potassium, and magnesium — to support hydration and muscle function. Perfect for post-workout recovery or an active morning!"},
+  {k:['vitamin','b vitamin','b12','b6','niacin','energy'],a:"Banana Blitz Sport is fortified with B vitamins including B2, B6, B12, and niacin. These support energy metabolism, reduce fatigue, and help your body use the protein effectively. Great for an active lifestyle!"},
+  {k:['gym','workout','exercise','sport','athlet','recover'],a:"Banana Blitz Sport was designed for exactly that! With 30g protein for muscle recovery, electrolytes for rehydration, and B vitamins for energy metabolism — it's the perfect grab-and-go post-workout drink. No shaker required!"},
+];
 
-KEY PRODUCT FACTS — Banana Blitz Sport:
-- Format: 400ml ready-to-drink (RTD) chilled bottle
-- Protein: 30g plant-based protein per bottle
-- Flavour: Caramelised banana vanilla cream — smooth, creamy, naturally sweet
-- Special features: Electrolytes for hydration, B vitamins for energy metabolism
-- Processing: HPP (High Pressure Processing) cold processed — preserves nutrients and freshness without heat
-- Price: $6.50 NZD per bottle
-- Availability: New Zealand supermarkets, chilled aisle / refrigerated section
-- Suitable for: Active adults, athletes, gym-goers, busy professionals, those needing a protein boost on the go
-- Plant-based: Yes — suitable for vegans and those avoiding dairy (no animal-derived protein)
-- Storage: Keep refrigerated at all times. Consume by best-before date. Once opened, consume immediately or within 24 hours in the fridge. HPP processing means it must stay cold to maintain freshness.
-- Kids: While it's nutritious and plant-based, it's formulated as a high-protein sports drink for active adults (30g protein is a large amount for children). Parents should consult a healthcare professional before giving it to young children. Older teens who are active may benefit, but always check with a doctor or dietitian.
-
-TONE & STYLE:
-- Warm, friendly, helpful, and upbeat — like a knowledgeable friend
-- Keep answers concise (2–4 sentences typically) but complete
-- Use relevant emojis sparingly for friendliness 🍌💪
-- If asked something you don't know (e.g. specific supermarket chains, exact nutritional breakdown beyond what's listed), be honest and suggest they check the product packaging or the Breakfast Blitz website
-- Never make up information. Stick to the facts above.
-- Always encourage the customer and stay positive about the product`;
-
-const conversationHistory = [];
-
-function getTime() {
-  return new Date().toLocaleTimeString('en-NZ', { hour: '2-digit', minute: '2-digit' });
-}
-
-function appendMessage(role, text) {
-  const messages = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.innerHTML = text.replace(/\n/g, '<br>');
-  const time = document.createElement('span');
-  time.className = 'msg-time';
-  time.textContent = getTime();
-  div.appendChild(bubble);
-  div.appendChild(time);
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  return div;
-}
-
-function showTyping() {
-  const messages = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg bot typing-indicator';
-  div.id = 'typing';
-  div.innerHTML = `<div class="msg-bubble"><div class="dots"><span></span><span></span><span></span></div></div>`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function removeTyping() {
-  const t = document.getElementById('typing');
-  if (t) t.remove();
-}
-
-async function callClaude(userMessage) {
-  conversationHistory.push({ role: 'user', content: userMessage });
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT,
-      messages: conversationHistory
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error?.message || 'API error');
+function getAnswer(q){
+  q=q.toLowerCase();
+  for(let a of answers){
+    if(a.k.some(k=>q.includes(k)))return a.a;
   }
-
-  const reply = data.content.map(b => b.text || '').join('');
-  conversationHistory.push({ role: 'assistant', content: reply });
-  return reply;
+  return "Great question! For more specific information, please email us at hello@breakfastblitz.co.nz or check the product label. We're always happy to help! 🍌";
 }
 
-async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const btn = document.getElementById('send-btn');
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = '';
-  input.style.height = 'auto';
-  appendMessage('user', text);
-
-  btn.disabled = true;
-  showTyping();
-
-  try {
-    const reply = await callClaude(text);
-    removeTyping();
-    appendMessage('bot', reply);
-  } catch (err) {
-    removeTyping();
-    appendMessage('bot', `Sorry, I'm having a little trouble connecting right now 🙏 Please try again in a moment.`);
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    input.focus();
-  }
+function addMsg(text,role){
+  const div=document.getElementById('bbmsg');
+  const m=document.createElement('div');
+  m.className='bb-msg '+role;
+  m.textContent=text;
+  div.appendChild(m);
+  div.scrollTop=div.scrollHeight;
 }
 
-function sendQuick(q) {
-  document.getElementById('user-input').value = q;
-  sendMessage();
+function ask(q){
+  document.getElementById('bbinput').value=q;
+  sendMsg();
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+function sendMsg(){
+  const input=document.getElementById('bbinput');
+  const q=input.value.trim();
+  if(!q)return;
+  input.value='';
+  addMsg(q,'user');
+  setTimeout(()=>addMsg(getAnswer(q),'bot'),600);
 }
 </script>
-</body>
-</html>
