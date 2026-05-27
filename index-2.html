@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breakfast Blitz Support</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5e9c0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.chat{width:100%;max-width:460px;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.header{background:#1a3a2a;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.avatar{width:42px;height:42px;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.header h1{color:#fff;font-size:16px;margin:0}
+.header p{color:#9fe1cb;font-size:12px;margin:0}
+.messages{height:350px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fdf8ee}
+.msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.bot{background:#fff;border:1px solid #e0d5b0;align-self:flex-start;border-radius:4px 12px 12px 12px}
+.user{background:#1a3a2a;color:#fff;align-self:flex-end;border-radius:12px 4px 12px 12px}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pill{background:#e1f5ee;color:#085041;font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid #9fe1cb}
+.quick{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:#fdf8ee;border-top:1px solid #e0d5b0}
+.qbtn{font-size:12px;padding:5px 10px;border-radius:20px;border:1.5px solid #1a3a2a;color:#1a3a2a;background:transparent;cursor:pointer}
+.qbtn:hover{background:#1a3a2a;color:#fff}
+.input-area{display:flex;gap:8px;padding:12px 14px;background:#fff;border-top:1px solid #e0d5b0}
+.input-area input{flex:1;padding:8px 12px;border-radius:8px;border:1px solid #c9a84c;font-size:14px;outline:none}
+.input-area button{background:#1a3a2a;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px}
+</style>
+</head>
+<body>
+<div class="chat">
+  <div class="header">
+    <div class="avatar">🍌</div>
+    <div>
+      <h1>Blitz Assistant</h1>
+      <p>● Online — Banana Blitz Sport Support</p>
+    </div>
+  </div>
+  <div class="messages" id="msgs">
+    <div class="msg bot">
+      Hey! Welcome to Breakfast Blitz Support. Ask me anything about Banana Blitz Sport!
+      <div class="pills">
+        <span class="pill">30g Protein</span>
+        <span class="pill">400ml RTD</span>
+        <span class="pill">HPP Cold Pressed</span>
+        <span class="pill">$6.50 NZD</span>
+        <span class="pill">Plant Based</span>
+      </div>
+    </div>
+  </div>
+  <div class="quick">
+    <button class="qbtn" onclick="ask('Where can I buy it?')">🛒 Where to buy?</button>
+    <button class="qbtn" onclick="ask('How much protein?')">💪 Protein?</button>
+    <button class="qbtn" onclick="ask('Is it good for kids?')">👧 Kids?</button>
+    <button class="qbtn" onclick="ask('How do I store it?')">❄️ Storage?</button>
+    <button class="qbtn" onclick="ask('How much does it cost?')">💰 Price?</button>
+    <button class="qbtn" onclick="ask('Is it plant based?')">🌱 Vegan?</button>
+  </div>
+  <div class="input-area">
+    <input type="text" id="inp" placeholder="Ask about Banana Blitz Sport..." onkeydown="if(event.key==='Enter')send()"/>
+    <button onclick="send()">Send</button>
+  </div>
+</div>
+<script>
+var qa=[
+  {k:['where','buy','find','stock','woolworths','new world','pak'],a:"Find Banana Blitz Sport in the chilled aisle at Woolworths, New World, and Pak'nSave stores across New Zealand!"},
+  {k:['protein','30g','grams'],a:"Each 400ml bottle contains 30g of plant-based protein from our pea-rice blend — a complete amino acid profile without dairy!"},
+  {k:['kids','children','child','family'],a:"Banana Blitz Sport is formulated for active adults. 30g protein is a large dose for young children — consult your doctor before giving it to kids under 12."},
+  {k:['store','storage','fridge','refrigerat','keep','cold'],a:"Keep refrigerated below 4 degrees Celsius at all times. HPP processing means it must stay cold. Once opened, consume within 24 hours!"},
+  {k:['cost','price','how much','dollar','nzd'],a:"Banana Blitz Sport retails at $6.50 NZD per 400ml bottle. Great value for 30g protein, electrolytes, and B vitamins!"},
+  {k:['plant','vegan','dairy','lactose'],a:"Yes! 100% plant-based using a pea-rice protein blend. No dairy, no whey, no animal ingredients. Suitable for vegans!"},
+  {k:['ingredient','made','contain'],a:"Contains: water, pea-rice protein blend, banana puree, natural caramelised banana flavour, vanilla flavour, electrolytes, B vitamins, xanthan gum. No artificial colours or flavours!"},
+  {k:['hpp','cold press','process'],a:"HPP means High Pressure Processing — we use cold water pressure instead of heat. This preserves more nutrients and freshness than traditional protein drinks!"},
+  {k:['flavour','flavor','taste','banana','vanilla'],a:"Rich Caramelised Banana and Vanilla Cream — warm, naturally sweet banana with a smooth creamy vanilla finish. Actually delicious, not just functional!"},
+  {k:['electrolyte','sodium','potassium','magnesium'],a:"Each bottle contains sodium, potassium, and magnesium to support hydration and muscle function. Perfect for post-workout recovery!"},
+  {k:['vitamin','b12','b6','niacin'],a:"Fortified with B2, B6, B12, and niacin to support energy metabolism and reduce fatigue. Great for an active lifestyle!"},
+  {k:['gym','workout','sport','athlet','recover','exercise'],a:"Designed for gym-goers and athletes! 30g protein for muscle recovery, electrolytes for rehydration, B vitamins for energy. Grab it and go — no shaker needed!"},
+];
+function getAnswer(q){
+  q=q.toLowerCase();
+  for(var i=0;i<qa.length;i++){
+    for(var j=0;j<qa[i].k.length;j++){
+      if(q.indexOf(qa[i].k[j])!==-1)return qa[i].a;
+    }
+  }
+  return "Great question! For more info email us at hello@breakfastblitz.co.nz — we are always happy to help! 🍌";
+}
+function addMsg(t,r){
+  var d=document.getElementById('msgs');
+  var m=document.createElement('div');
+  m.className='msg '+r;
+  m.textContent=t;
+  d.appendChild(m);
+  d.scrollTop=d.scrollHeight;
+}
+function ask(q){document.getElementById('inp').value=q;send();}
+function send(){
+  var i=document.getElementById('inp');
+  var q=i.value.trim();
+  if(!q)return;
+  i.value='';
+  addMsg(q,'user');
+  setTimeout(function(){addMsg(getAnswer(q),'bot');},500);
+}
+</script>
+</body>
+</html>
